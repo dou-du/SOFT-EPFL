@@ -1,6 +1,5 @@
 #!/bin/bash
 
-rm *.png
 rm result.gif 
 
 

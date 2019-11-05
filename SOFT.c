@@ -8,7 +8,9 @@ Quantum dynamics (QD) simulation, SOFT algorithm.
 
 
 int main(int argc, char **argv) {
-  
+
+  char *a = argv[1];
+  int npot = atoi(a); 
   
   int step; /* Simulation loop iteration index */
    
@@ -20,7 +22,7 @@ int main(int argc, char **argv) {
   printf("  completed      norm         etot     \n") ;
   
   init_param();          // Initialize input parameters 
-  init_prop();          // Initialize the kinetic & potential propagators
+  init_prop(npot);          // Initialize the kinetic & potential propagators
   init_wavefn(f2,f3,f4); // Initialize the electron wave function 
 
   print_pot(f5);
@@ -65,14 +67,14 @@ void init_param() {
 
 
 /*----------------------------------------------------------------------------*/
-void init_prop() {
+void init_prop(int npot) {
 /*------------------------------------------------------------------------------
   Initializes potential and kinetic operators
 ------------------------------------------------------------------------------*/
   int sx;
   double k, x;
 
-  pot_type=1; //Choose the potential shape you want to use
+  pot_type= npot; //Choose the potential shape you want to use
 
   if      (pot_type==1) { //------------------------------------- BOX potential
    X0 =12.0;    //Initial position of the particle [au]
