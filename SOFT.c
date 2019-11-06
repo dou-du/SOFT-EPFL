@@ -10,7 +10,9 @@ Quantum dynamics (QD) simulation, SOFT algorithm.
 int main(int argc, char **argv) {
 
   char *a = argv[1];
+  char *b = argv[2];
   int npot = atoi(a); 
+  double mydt = atof(b); 
   
   int step; /* Simulation loop iteration index */
    
@@ -21,7 +23,7 @@ int main(int argc, char **argv) {
   FILE *f5=fopen("potential.dat","w");
   printf("  completed      norm         etot     \n") ;
   
-  init_param();          // Initialize input parameters 
+  init_param(mydt);          // Initialize input parameters 
   init_prop(npot);          // Initialize the kinetic & potential propagators
   init_wavefn(f2,f3,f4); // Initialize the electron wave function 
 
@@ -47,7 +49,7 @@ int main(int argc, char **argv) {
   return 0;
 }
 /*------------------------------------------------------------------------------*/
-void init_param() {
+void init_param(double mydt) {
 /*------------------------------------------------------------------------------
   Initializes parameters.
 ------------------------------------------------------------------------------*/
@@ -55,7 +57,7 @@ void init_param() {
   LX=50.0;   //Box dimension [au]
  //NX see .h //Number of bins [-]
   TT=100;    //Simulation total time [au]
-  DT=0.01;  //Timestep [au]
+  DT= mydt;  //Timestep [au]
   
   NECAL=1;    // Every print energy 
   NNCAL=20;  // Every print psi, psisq, norm 
