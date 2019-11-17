@@ -1,7 +1,7 @@
 #!/bin/bash
 
-rm result.gif 
-
+rm  result.gif 
+rm  *.png 
 
 gnuplot psi_gif.gnuplot
 
