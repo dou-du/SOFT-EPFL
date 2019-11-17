@@ -12,4 +12,3 @@ done
 
 convert -delay 5 -loop 0 *.png result.gif
 
-rm *.png
