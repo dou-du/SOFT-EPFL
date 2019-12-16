@@ -4,16 +4,27 @@ Quantum dynamics (QD) simulation, SOFT algorithm.
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <unistd.h>  
 #include "SOFT.h"
 
 
 int main(int argc, char **argv) {
 
-  char *a = argv[1];
-  char *b = argv[2];
-  int npot = atoi(a); 
-  double mydt = atof(b); 
-  
+  char *a1 = argv[1];
+  char *a2 = argv[2];
+  char *a3 = argv[3];
+  char *a4 = argv[4];
+  char *a5 = argv[5];
+  char *a6 = argv[6];
+
+  int npot = atoi(a1); 
+  double mydt = atof(a2); 
+  M = atof(a3); 
+  PT = atof(a4);
+
+  BH = atof(a5);
+  BW = atof(a6);
+
   int step; /* Simulation loop iteration index */
    
   FILE *f1=fopen("energy.dat","w");
@@ -21,6 +32,7 @@ int main(int argc, char **argv) {
   FILE *f3=fopen("psip.dat","w");
   FILE *f4=fopen("norm.dat","w");
   FILE *f5=fopen("potential.dat","w");
+
   printf("  completed      norm         etot     \n") ;
   
   init_param(mydt);          // Initialize input parameters 
@@ -43,6 +55,10 @@ int main(int argc, char **argv) {
     if (step==1|| step%(NSTEP/10)==0){
       int progress=step*100/NSTEP;
      printf("  %3d %%         %6.5f      %8.4f   \n", progress, norm, etot) ; 
+     FILE *f6=fopen("./progress/count.dat","w");
+     fprintf(f6, "%3d", progress);
+     fclose(f6);
+     sleep(PT);
     }
   }
   
@@ -80,12 +96,11 @@ void init_prop(int npot) {
 
   if      (pot_type==1) { //------------------------------------- BOX potential
    X0 =12.0;    //Initial position of the particle [au]
-   M  = 1.0;     //Mass of the particle [au]
    K0 = 3.0;     //Initial velocity [au] 
    S0 = 1.0;     //Width of the gaussian (sigma) [au]
 
-   BH=4.0;    /* height of central barrier */
-   BW=2.0;    /* width  of central barrier */
+//   BH=4.0;    /* height of central barrier */
+//   BW=2.0;    /* width  of central barrier */
    EH=100.0;  /* height of edge barrier    */
 
    for (sx=0; sx<NX; sx++) {
@@ -100,7 +115,6 @@ void init_prop(int npot) {
   }
   else if (pot_type==2) { //------------------------------------- MORSE potential (be careful with error from PBC)
    X0 = 10.0;    //Initial position of the particle [au]
-   M  = 1.0;     //Mass of the particle [au]
    K0 = 0.5;     //Initial velocity [au] 
    S0 = 1.0;     //Width of the gaussian (sigma) [au] 
 
@@ -114,7 +128,6 @@ void init_prop(int npot) {
   }
   else if (pot_type==3) { //------------------------------------- HARMONIC potential
    X0 = 22.0;    //Initial position of the particle [au]
-   M  = 1.0;     //Mass of the particle [au]
    K0 = -1.0;     //Initial velocity [au] 
    S0 = 1.0;     //Width of the gaussian (sigma) [au]
 
