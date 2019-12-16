@@ -26,6 +26,7 @@ void calc_deltaE();
 void calc_norm();
 void print_energy(int step, FILE *f1);
 void print_wavefn(int step, FILE *f2, FILE *f3, FILE *f4);
+void print_wavefn2(int step, FILE *f2, FILE *f3);
 void print_pot(FILE *f5);
 
 /* Input parameters ***********************************************************/

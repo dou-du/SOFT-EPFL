@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
   FILE *f4=fopen("norm.dat","w");
   FILE *f5=fopen("potential.dat","w");
 
+
   printf("  completed      norm         etot     \n") ;
   
   init_param(mydt);          // Initialize input parameters 
@@ -40,6 +41,7 @@ int main(int argc, char **argv) {
   init_wavefn(f2,f3,f4); // Initialize the electron wave function 
 
   print_pot(f5);
+  sleep(2);
   print_wavefn(0,f2,f3,f4); 
 
   for (step=1; step<=NSTEP; step++) {
@@ -52,12 +54,17 @@ int main(int argc, char **argv) {
       calc_norm();
       print_wavefn(step,f2,f3,f4);
     }
-    if (step==1|| step%(NSTEP/10)==0){
+    if (step==1|| step%(NSTEP/100)==0){
       int progress=step*100/NSTEP;
      printf("  %3d %%         %6.5f      %8.4f   \n", progress, norm, etot) ; 
      FILE *f6=fopen("./progress/count.dat","w");
-     fprintf(f6, "%3d", progress);
+     FILE *f7=fopen("psi_new.dat","w");
+     FILE *f8=fopen("psip_new.dat","w");
+     fprintf(f6, "%3d %6.5f %8.4f", progress, norm, etot);
+     print_wavefn2(step, f7, f8);
      fclose(f6);
+     fclose(f7);
+     fclose(f8);
      sleep(PT);
     }
   }
@@ -481,5 +488,30 @@ void print_pot(FILE *f5) {
   x=dx*sx;
   fprintf(f5,"%8i %15.10f %15.10f\n",sx,x,v[sx]);  //potential.dat
   }
+
+ fclose(f5); 
 }
 
+
+/*----------------------------------------------------------------------------*/
+void print_wavefn2(int step, FILE *f2, FILE *f3) {
+/*------------------------------------------------------------------------------
+  Print wf, squared wf and norm 
+-------------------------------------------------------------------------------*/
+  
+ int sx;
+ double x, k, psisqsx, psipsqsx;
+
+ for (sx=0; sx<=NX; sx++){
+  x = dx*sx;
+  psisqsx = psi[sx][0]*psi[sx][0]+psi[sx][1]*psi[sx][1];
+  fprintf(f2,"%8i %15.10f %15.10f %15.10f %15.10f\n",sx,x,psi[sx][0],psi[sx][1],psisqsx);    // print psi.dat
+
+  if (sx < NX/2)
+     k = 2*M_PI*sx/LX;            
+  else
+     k = 2*M_PI*(sx-NX)/LX; 
+  psipsqsx = psip[sx][0]*psip[sx][0]+psip[sx][1]*psip[sx][1];
+  fprintf(f3,"%8i %15.10f %15.10f %15.10f %15.10f\n",sx,k,psip[sx][0],psip[sx][1],psipsqsx); // print psip.dat
+ }
+}
