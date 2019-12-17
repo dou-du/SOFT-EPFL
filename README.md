@@ -1,3 +1,6 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dou-du/SOFT-EPFL/dou?urlpath=%2Fapps%2Fex-soft.ipynb)
+
+
 Split-Operator Fourier Transform (SOFT) program
 for the course [Computational Methods in Molecular Quantum Mechanics CH-452](http://edu.epfl.ch/coursebook/en/computational-methods-in-molecular-quantum-mechanics-CH-452).
 
