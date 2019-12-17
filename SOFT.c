@@ -4,7 +4,7 @@ Quantum dynamics (QD) simulation, SOFT algorithm.
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <unistd.h>  
+#include <unistd.h>
 #include "SOFT.h"
 
 
@@ -16,17 +16,22 @@ int main(int argc, char **argv) {
   char *a4 = argv[4];
   char *a5 = argv[5];
   char *a6 = argv[6];
+  char *a7 = argv[7];
+  char *a8 = argv[8];
 
-  int npot = atoi(a1); 
-  double mydt = atof(a2); 
-  M = atof(a3); 
+  int npot = atoi(a1);
+  double mydt = atof(a2);
+  M = atof(a3);
   PT = atof(a4);
 
   BH = atof(a5);
   BW = atof(a6);
 
+  D = atof(a7);
+  b = atof(a8);
+
   int step; /* Simulation loop iteration index */
-   
+
   FILE *f1=fopen("energy.dat","w");
   FILE *f2=fopen("psi.dat","w");
   FILE *f3=fopen("psip.dat","w");
@@ -35,17 +40,16 @@ int main(int argc, char **argv) {
 
 
   printf("  completed      norm         etot     \n") ;
-  
-  init_param(mydt);          // Initialize input parameters 
+
+  init_param(mydt);          // Initialize input parameters
   init_prop(npot);          // Initialize the kinetic & potential propagators
-  init_wavefn(f2,f3,f4); // Initialize the electron wave function 
+  init_wavefn(f2,f3,f4); // Initialize the electron wave function
 
   print_pot(f5);
-  sleep(2);
-  print_wavefn(0,f2,f3,f4); 
+  print_wavefn(0,f2,f3,f4);
 
   for (step=1; step<=NSTEP; step++) {
-    single_step(step);                  // Main routine: propagator      
+    single_step(step);                  // Main routine: propagator
     if (step==1 || step%NECAL==0) {
       calc_energy();
       print_energy(step,f1);
@@ -56,7 +60,7 @@ int main(int argc, char **argv) {
     }
     if (step==1|| step%(NSTEP/100)==0){
       int progress=step*100/NSTEP;
-     printf("  %3d %%         %6.5f      %8.4f   \n", progress, norm, etot) ; 
+     printf("  %3d %%         %6.5f      %8.4f   \n", progress, norm, etot) ;
      FILE *f6=fopen("./progress/count.dat","w");
      FILE *f7=fopen("psi_new.dat","w");
      FILE *f8=fopen("psip_new.dat","w");
@@ -68,7 +72,7 @@ int main(int argc, char **argv) {
      sleep(PT);
     }
   }
-  
+
   return 0;
 }
 /*------------------------------------------------------------------------------*/
@@ -81,12 +85,12 @@ void init_param(double mydt) {
  //NX see .h //Number of bins [-]
   TT=100;    //Simulation total time [au]
   DT= mydt;  //Timestep [au]
-  
-  NECAL=1;    // Every print energy 
-  NNCAL=20;  // Every print psi, psisq, norm 
 
-  
-  dx    = LX/NX; // Calculate the mesh size [-] 
+  NECAL=1;    // Every print energy
+  NNCAL=20;  // Every print psi, psisq, norm
+
+
+  dx    = LX/NX; // Calculate the mesh size [-]
   NSTEP = TT/DT;  // Number of steps [-] (!Lowest integer)
 }
 
@@ -103,7 +107,7 @@ void init_prop(int npot) {
 
   if      (pot_type==1) { //------------------------------------- BOX potential
    X0 =12.0;    //Initial position of the particle [au]
-   K0 = 3.0;     //Initial velocity [au] 
+   K0 = 3.0;     //Initial velocity [au]
    S0 = 1.0;     //Width of the gaussian (sigma) [au]
 
 //   BH=4.0;    /* height of central barrier */
@@ -112,8 +116,8 @@ void init_prop(int npot) {
 
    for (sx=0; sx<NX; sx++) {
     x = dx*sx;
-    if (sx<=NX/50 || sx>=NX-NX/50) //I don't want that the wf touches the borders 
-      v[sx] = EH;    
+    if (sx<=NX/50 || sx>=NX-NX/50) //I don't want that the wf touches the borders
+      v[sx] = EH;
     else if (0.5*(LX-BW)<x && x<0.5*(LX+BW)) /* Construct the barrier potential */
       v[sx] = BH;
     else
@@ -122,20 +126,20 @@ void init_prop(int npot) {
   }
   else if (pot_type==2) { //------------------------------------- MORSE potential (be careful with error from PBC)
    X0 = 10.0;    //Initial position of the particle [au]
-   K0 = 0.5;     //Initial velocity [au] 
-   S0 = 1.0;     //Width of the gaussian (sigma) [au] 
+   K0 = 0.5;     //Initial velocity [au]
+   S0 = 1.0;     //Width of the gaussian (sigma) [au]
 
-   b = 0.3;
-   D = 1.0;
+//   b = 0.3;
+//   D = 1.0;
 
    for (sx=0; sx<NX; sx++) {
     x = dx*sx;
-    v[sx] = D*(exp(-2*b*(x-10))-2*exp(-b*(x-10)))+D;    
-   } 
+    v[sx] = D*(exp(-2*b*(x-10))-2*exp(-b*(x-10)))+D;
+   }
   }
   else if (pot_type==3) { //------------------------------------- HARMONIC potential
    X0 = 22.0;    //Initial position of the particle [au]
-   K0 = -1.0;     //Initial velocity [au] 
+   K0 = -1.0;     //Initial velocity [au]
    S0 = 1.0;     //Width of the gaussian (sigma) [au]
 
    b = 0.02;    //Harmonic constant [au]
@@ -143,10 +147,24 @@ void init_prop(int npot) {
 
    for (sx=0; sx<NX; sx++) {
     x = dx*sx;
-    v[sx] = b*(x-D)*(x-D);    
+    v[sx] = b*(x-D)*(x-D);
    }
   v[NX]=v[0]; //PBC
   } //end potential definition
+  else if (pot_type==4){
+    FILE * f9 = fopen("my_potential.dat","r");
+
+    X0 = 12.0;
+    K0 = 3.0;
+    S0 = 1.0;
+
+    for (sx=0; sx<NX; sx++){
+      x = dx*sx;
+      fscanf(f9, "%lf", &v[sx]);
+      printf("%f \n", v[sx]);
+    }
+    v[NX] = v[0];
+  }
 
   /* Set up half-step potential propagator */
   for (sx=0; sx<NX; sx++) {
@@ -158,12 +176,12 @@ void init_prop(int npot) {
   /* Set up kinetic propagators */
   for (sx=0; sx<NX; sx++) {
     if (sx < NX/2)
-      k = 2*M_PI*sx/LX;            
+      k = 2*M_PI*sx/LX;
     else
-      k = 2*M_PI*(sx-NX)/LX;       
-    
-    T[sx] = 0.5*k*k/M;           // kinetic operator  
-    t[sx][0] = cos(-DT*T[sx]);   // kinetic propagator 
+      k = 2*M_PI*(sx-NX)/LX;
+
+    T[sx] = 0.5*k*k/M;           // kinetic operator
+    t[sx][0] = cos(-DT*T[sx]);   // kinetic propagator
     t[sx][1] = sin(-DT*T[sx]);
   }
 }
@@ -180,7 +198,7 @@ void init_wavefn() {
   for (sx=0; sx<NX; sx++) {
     x = dx*sx;
     gauss = exp(-(x-X0)*(x-X0)/4.0/(S0*S0));
-    psi[sx][0] = gauss*cos(M*K0*(x-X0)); //Re 
+    psi[sx][0] = gauss*cos(M*K0*(x-X0)); //Re
     psi[sx][1] = gauss*sin(M*K0*(x-X0)); //Im
   }
 
@@ -220,25 +238,25 @@ void single_step(int step) {
   Propagates the electron wave function for a unit time step, DT.
 ------------------------------------------------------------------------------*/
   int j;
-  
+
   pot_prop();  /* half step potential propagation */
   create_psif();
   four1(psif, (unsigned long) NX, +1);
-  for (j=0; j <= 2*(NX+1); j++) 
+  for (j=0; j <= 2*(NX+1); j++)
     psif[j] /= NX;
   update_psi();
   kin_prop(); /* step kinetic propagation   */
   create_psif();
   four1(psif, (unsigned long) NX, -1);
   update_psi();
-  pot_prop();  
+  pot_prop();
 
-  if (step==1 || step%NECAL==0){		
+  if (step==1 || step%NECAL==0){
     calc_epot();                             //compute the potential energy from psi
-	
+
     create_psif();                           //compute the kinetic energy from the fourier transform of psi
-    four1(psif, (unsigned long) NX, +1);  
-    for (j=0; j <= 2*(NX+1); j++) 
+    four1(psif, (unsigned long) NX, +1);
+    for (j=0; j <= 2*(NX+1); j++)
       psif[j] /= NX;
     update_psi();
     calc_ekin();
@@ -255,7 +273,7 @@ void pot_prop() {
 ------------------------------------------------------------------------------*/
   int sx;
   double wr,wi;
-  
+
   for (sx=0; sx<NX; sx++) {
     wr=u[sx][0]*psi[sx][0]-u[sx][1]*psi[sx][1];
     wi=u[sx][0]*psi[sx][1]+u[sx][1]*psi[sx][0];
@@ -272,13 +290,13 @@ void kin_prop() {
 -------------------------------------------------------------------------------*/
   int sx,s;
   double wr,wi;
-  
+
   for (sx=0; sx<NX; sx++) {
     wr=t[sx][0]*psi[sx][0]-t[sx][1]*psi[sx][1];
     wi=t[sx][0]*psi[sx][1]+t[sx][1]*psi[sx][0];
     psi[sx][0]=wr;
     psi[sx][1]=wi;
-  }	
+  }
 }
 
 /*----------------------------------------------------------------------------*/
@@ -303,7 +321,7 @@ checked for!).
       SWAP(data[j+1],data[i+1]);
     }
     m=nn;
-    while (m >= 2 && j > m) { 
+    while (m >= 2 && j > m) {
       j -= m;
       m >>= 1;
     }
@@ -383,15 +401,15 @@ void calc_ekin() {
   kave = 0.0;
   for (sx=0; sx<NX; sx++) {
     if (sx < NX/2)
-      k = 2*M_PI*sx/LX;              
+      k = 2*M_PI*sx/LX;
     else
-      k = 2*M_PI*(sx-NX)/LX;         
+      k = 2*M_PI*(sx-NX)/LX;
     ekin += 0.5/M*k*k*(psi[sx][0]*psi[sx][0]+psi[sx][1]*psi[sx][1]);
     kave += k*(psi[sx][0]*psi[sx][0]+psi[sx][1]*psi[sx][1])*dx;
   }
   ekin *= dx;
   ekin *= NX;
-}		
+}
 
 /*----------------------------------------------------------------------------*/
 void calc_epot() {
@@ -412,51 +430,51 @@ void calc_energy() {
 
 /*----------------------------------------------------------------------------*/
 void print_energy(int step, FILE *f1) {
-  
+
  fprintf(f1, "%8i %15.10f %15.10f %15.10f\n", step,ekin,epot,etot); //energy.dat
-  
+
 }
 
 /*----------------------------------------------------------------------------*/
 void calc_norm() {
 /*------------------------------------------------------------------------------
-  Calculate the norm, average position and velocity.                 
+  Calculate the norm, average position and velocity.
   Notice: the norm is integrated using the trapezoidal rule.
 -------------------------------------------------------------------------------*/
-  
+
  int sx;
  double psisq1,psisq2;
 
  norm=0.0;
  xave=0.0;
 
- for (sx=0; sx<=NX; sx++) {                                                            
+ for (sx=0; sx<=NX; sx++) {
   psisq1 = psi[sx][0]*psi[sx][0]+psi[sx][1]*psi[sx][1];
   psisq2 = psi[sx+1][0]*psi[sx+1][0]+psi[sx+1][1]*psi[sx+1][1];
-  norm += dx*((psisq1+psisq2)/2.0); 
+  norm += dx*((psisq1+psisq2)/2.0);
   xave += dx*((psisq1+psisq2)/2.0)*(dx*(sx+0.5));
- }  
+ }
   norm=sqrt(norm);
 }
 
 /*----------------------------------------------------------------------------*/
 void print_wavefn(int step, FILE *f2, FILE *f3, FILE *f4) {
 /*------------------------------------------------------------------------------
-  Print wf, squared wf and norm 
+  Print wf, squared wf and norm
 -------------------------------------------------------------------------------*/
-  
+
  int sx;
  double x, k, psisqsx, psipsqsx;
 
  if (step == 0) {
  fprintf(f2,"# sx x psi_Re  psi_Im  psi^2 , index=step/NNCAL \n");
  fprintf(f3,"# sx k psip_Re psip_Im psip^2, index=step/NNCAL \n");
- fprintf(f4,"# step norm xave kave\n"); 
+ fprintf(f4,"# step norm xave kave\n");
  }
- 
- fprintf(f2,"\n"); 
- fprintf(f2,"\n"); 
- fprintf(f3,"\n"); 
+
+ fprintf(f2,"\n");
+ fprintf(f2,"\n");
+ fprintf(f3,"\n");
  fprintf(f3,"\n");
 
  for (sx=0; sx<=NX; sx++){
@@ -465,9 +483,9 @@ void print_wavefn(int step, FILE *f2, FILE *f3, FILE *f4) {
   fprintf(f2,"%8i %15.10f %15.10f %15.10f %15.10f\n",sx,x,psi[sx][0],psi[sx][1],psisqsx);    // print psi.dat
 
   if (sx < NX/2)
-     k = 2*M_PI*sx/LX;            
+     k = 2*M_PI*sx/LX;
   else
-     k = 2*M_PI*(sx-NX)/LX; 
+     k = 2*M_PI*(sx-NX)/LX;
   psipsqsx = psip[sx][0]*psip[sx][0]+psip[sx][1]*psip[sx][1];
   fprintf(f3,"%8i %15.10f %15.10f %15.10f %15.10f\n",sx,k,psip[sx][0],psip[sx][1],psipsqsx); // print psip.dat
  }
@@ -478,10 +496,10 @@ void print_wavefn(int step, FILE *f2, FILE *f3, FILE *f4) {
 
 /*-------------------------------------------------------------------------------*/
 void print_pot(FILE *f5) {
-  
+
   int sx;
   double x;
- 
+
  fprintf(f5,"#index x pot");
 
  for (sx=0; sx<=NX; sx++){
@@ -489,16 +507,16 @@ void print_pot(FILE *f5) {
   fprintf(f5,"%8i %15.10f %15.10f\n",sx,x,v[sx]);  //potential.dat
   }
 
- fclose(f5); 
+ fclose(f5);
 }
 
 
 /*----------------------------------------------------------------------------*/
 void print_wavefn2(int step, FILE *f2, FILE *f3) {
 /*------------------------------------------------------------------------------
-  Print wf, squared wf and norm 
+  Print wf, squared wf and norm
 -------------------------------------------------------------------------------*/
-  
+
  int sx;
  double x, k, psisqsx, psipsqsx;
 
@@ -508,9 +526,9 @@ void print_wavefn2(int step, FILE *f2, FILE *f3) {
   fprintf(f2,"%8i %15.10f %15.10f %15.10f %15.10f\n",sx,x,psi[sx][0],psi[sx][1],psisqsx);    // print psi.dat
 
   if (sx < NX/2)
-     k = 2*M_PI*sx/LX;            
+     k = 2*M_PI*sx/LX;
   else
-     k = 2*M_PI*(sx-NX)/LX; 
+     k = 2*M_PI*(sx-NX)/LX;
   psipsqsx = psip[sx][0]*psip[sx][0]+psip[sx][1]*psip[sx][1];
   fprintf(f3,"%8i %15.10f %15.10f %15.10f %15.10f\n",sx,k,psip[sx][0],psip[sx][1],psipsqsx); // print psip.dat
  }
