@@ -6,14 +6,16 @@ jupyter serverextension  enable --py --sys-prefix appmode
 jupyter nbextension      enable --py widgetsnbextension
 python -m gnuplot_kernel install --user
 make
-git clone https://github.com/osscar-org/widget-code-input.git
+git clone https://github.com/dou-du/widget-code-input.git
 cd widget-code-input
 pip install -e .
+jlpm
+jlpm run build 
 jupyter nbextension install --py --symlink --sys-prefix widget_code_input
 jupyter nbextension enable --py --sys-prefix widget_code_input
 cd ..
 
-git clone https://github.com/dou-du/voila.git 
+git clone https://github.com/dou-du/voila.git
 cd voila
 pip install -e .
 jupyter nbextension install voila --sys-prefix --py
