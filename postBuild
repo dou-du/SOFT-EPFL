@@ -8,9 +8,9 @@ python -m gnuplot_kernel install --user
 make
 git clone https://github.com/dou-du/widget-code-input.git
 cd widget-code-input
-pip install -e .
 jlpm
-jlpm run build 
+jlpm run build
+pip install -e .
 jupyter nbextension install --py --symlink --sys-prefix widget_code_input
 jupyter nbextension enable --py --sys-prefix widget_code_input
 cd ..
