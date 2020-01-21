@@ -3,7 +3,6 @@ ipywidgets==7.5.0
 numpy==1.17.2
 ipympl==0.2.1
 appmode==0.6.0
-voila==0.1.20
 IPython==7.8.0
 gnuplot_kernel
 watchdog
