@@ -1,4 +1,4 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dou-du/SOFT-EPFL/dou?urlpath=%2Fapps%2Fex-soft.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dou-du/SOFT-EPFL/dou?urlpath=%2Fvoila%2Frender%2Fex-soft.ipynb)
 
 
 Split-Operator Fourier Transform (SOFT) program
