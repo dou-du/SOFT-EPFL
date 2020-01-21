@@ -13,7 +13,7 @@ jupyter nbextension install --py --symlink --sys-prefix widget_code_input
 jupyter nbextension enable --py --sys-prefix widget_code_input
 cd ..
 
-git clone git@github.com:dou-du/voila.git
+git clone https://github.com/dou-du/SOFT-EPFL.git  
 cd voila 
 pip install -e .
 jupyter nbextension install voila --sys-prefix --py
