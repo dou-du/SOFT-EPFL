@@ -18,6 +18,8 @@ int main(int argc, char **argv) {
   char *a6 = argv[6];
   char *a7 = argv[7];
   char *a8 = argv[8];
+  char *a9 = argv[9];
+
 
   int npot = atoi(a1);
   double mydt = atof(a2);
@@ -30,6 +32,8 @@ int main(int argc, char **argv) {
   D = atof(a7);
   b = atof(a8);
 
+  my_wavefunction = atof(a9);  
+
   int step; /* Simulation loop iteration index */
 
   FILE *f1=fopen("energy.dat","w");
@@ -37,6 +41,7 @@ int main(int argc, char **argv) {
   FILE *f3=fopen("psip.dat","w");
   FILE *f4=fopen("norm.dat","w");
   FILE *f5=fopen("potential.dat","w");
+
 
 
   printf("  completed      norm         etot     \n") ;
@@ -161,7 +166,7 @@ void init_prop(int npot) {
     for (sx=0; sx<NX; sx++){
       x = dx*sx;
       fscanf(f9, "%lf", &v[sx]);
-      printf("%f \n", v[sx]);
+      // printf("%f \n", v[sx]);
     }
     v[NX] = v[0];
   }
@@ -194,12 +199,24 @@ void init_wavefn() {
   int sx;
   double x,gauss,psisq,norm_fac;
 
+  if (my_wavefunction == 0){
+
   /* Calculate the the wave function value mesh point-by-point */
   for (sx=0; sx<NX; sx++) {
     x = dx*sx;
     gauss = exp(-(x-X0)*(x-X0)/4.0/(S0*S0));
     psi[sx][0] = gauss*cos(M*K0*(x-X0)); //Re
     psi[sx][1] = gauss*sin(M*K0*(x-X0)); //Im
+  }
+  }
+  else{
+      FILE * f10 = fopen("my_wavefunction.dat","r"); 
+      for (sx=0; sx<NX; sx++) {
+        x = dx*sx;
+        fscanf(f10, "%lf", &psi[sx][0]); 
+        fscanf(f10, "%lf", &psi[sx][1]); 
+      }
+      fclose(f10); 
   }
 
   /* Normalize the wave function */

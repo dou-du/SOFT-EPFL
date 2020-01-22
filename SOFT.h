@@ -37,6 +37,7 @@ int NSTEP;       /* Number of simulation steps */
 int NECAL;       /* Interval to calculate energies */
 int NNCAL;       /* Interval to calculate the norm */
 int pot_type;    /* Type of potential choice */
+int my_wavefunction = 0;  /* Use my own wavefunction */
 int PT;          /* The puase time for the step */
 double X0,S0,E0,K0;   /* Center-of-mass, spread, energy (or velocity) of initial wave packet */
 double BH,BW,EH,D,b; /* Parameters for the potentials */
